@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="Surface-Aware Distilled 3D Semantic Features">
+  <meta name="keywords" content="Semantic Features, Diffusion Features, Foundational Models, Correspondence Matching, Pose Estimation">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Surface-Aware Semanic Features </title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="static/style.css">
+  <script type="text/javascript" src="static/script.js"></script>
+</head>
+
+<body>
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 is-size-3-mobile lato-black black no-lower-margin">Surface-Aware Distilled 3D Semantic
+              Features</h1>
+            <!-- <h2 class="title is-3 is-size-5-mobile black">Surface-Aware Distilled 3D Semantic Features</h2> -->
+            <div class="is-size-5">
+              <span>
+                <a class="link blue lato-bold author-link" href="https://lukas.uzolas.com/">Lukas Uzolas</a>,</span>
+              <span>
+                <a class="link blue lato-bold author-link" href="https://graphics.tudelft.nl/~eisemann/">Elmar
+                  Eisemann</a>,</span>
+              <span>
+                <a class="link blue lato-bold author-link" href="https://kellnhofer.xyz/">Petr Kellnhofer</a>
+              </span>
+            </div>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">Delft University of Technology</span>
+            </div>
+            <!-- <h5 class="title is-5 is-size-5-mobile black">arXiv 2025</h5> -->
+
+            <div class="buffer-top">
+              <span class="link-block">
+                <a href="" class="external-link button link lato-black button-link">
+                  <span>arXiv</span>
+                </a>
+              </span>
+
+              <span class="link-block">
+                <a href="https://github.com/lukasuz/"
+                  class="external-link button lato-black link button-link">
+                  <span>Code</span>
+                </a>
+              </span>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <!-- <div class="container column is-full is-four-fifths">
+    <section class="section">
+      <video muted playsinline loop autoplay>
+        <source src="./static/videos/teaser.mp4" type="video/mp4">
+      </video>
+    </section> -->
+
+
+  </div>
+
+
+    <div class="container">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          
+
+          <section class="section">
+            <div id="teaser-box">
+              <video muted playsinline loop autoplay>
+                <source src="./static/videos/teaser.mp4" type="video/mp4">
+              </video>
+
+              <div class="content dark-grey has-text-justified">
+                <p>
+                  We introduce a <b>surface-aware</b> feature embedding space separating instances of the same semantic class.
+                  Semantically-related regions across diverse 3D shapes are implicitly aligned
+                  in a self-supervised manner without access to any labels <span class="lato-black yellow zoom" id="teaser-Z">🔍</span>. 
+                </p>
+              </div>
+            </div>
+            <br>
+
+
+            <div class="level-left">
+              <div class="level-item">
+                <h2 class="title is-3 lato-black black">Abstract</h2>
+              </div>
+            </div>
+
+            <div class="content has-text-justified">
+              <p>
+                Many 3D tasks such as pose alignment, animation, motion transfer, and 3D reconstruction rely on
+                establishing correspondences between 3D shapes. This challenge has recently been approached by matching
+                of <span class="highlight-blue">semantic features from pre-trained vision models</span>. However, despite their power, these features
+                <span class="highlight-blue">struggle to differentiate instances of the same semantic class</span> such as "left hand" versus "right hand"
+                which leads to substantial mapping errors. To solve this, we learn a surface-aware embedding space that
+                is robust to these ambiguities. Importantly, <span class="highlight-blue">our approach is self-supervised</span> and requires only a small
+                number of unpaired training meshes to infer features for new 3D shapes at test time. We achieve this by
+                introducing a contrastive loss that preserves the semantic content of the features distilled from
+                foundational models while disambiguating features located far apart on the shape's surface. We observe
+                <span class="highlight-red">superior performance in correspondence matching</span> benchmarks and enable downstream applications including
+                <span class="highlight-red">in-part segmentation</span class="highlight-red">, <span class="highlight-red">pose alignment</span>, and <span class="highlight-red">motion transfer</span> in low-data regimes. </p>
+            </div>
+
+          </section>
+          <br>
+
+        
+
+
+
+        <section class="section">
+          <div class="level-left">
+            <div class="level-item">
+              <h2 class="title is-3 black lato-black ">Applications</h2>
+
+            </div>
+          </div>
+
+          <div class="content has-text-justified">
+            <p> We demonstrate multiple applications that benefit from our surface-aware features.
+              We compare our results against <a href="https://diff3f.github.io/">Diff3F</a> <i>(Dutt, 2024 CVPR)</i>.
+              You can explore the results below by cycling through the different examples by pushing 
+              the <b class="blue" style="vertical-align: bottom"><</b> and <b class="green"
+                style="vertical-align: bottom">></b> buttons.
+            </p>
+          </div>
+
+          <!-- part segmentation -->
+          
+          <div class="level-left">
+            <div class="level-item">
+              <h2 class="title is-4 black lato-black ">Instance-based Part Segmentation</h2>
+            </div> 
+          </div>
+          
+          <div class="content has-text-justified">
+            <p> Following prior Diff3F, we segment a target shape by clustering features around centroids from K-means clustering of source-shape features.
+              We demonstrate that unlike the Diff3F features, <span class="highlight-blue">our surface-aware features disambiguate the limbs</span>.
+            </p>
+          </div>
+
+
+
+          <div id="segmentation-box">
+
+            <div class="video-container">
+              <video id="segmentation-video" muted playsinline loop autoplay>
+                <source src="./static/videos/segmentation/0.mp4" type="video/mp4">
+              </video>
+              <svg class="arrow-svg" viewBox="0 0 200 100" preserveAspectRatio="none">
+                <defs>
+                  <marker id="arrowhead" markerWidth="7" markerHeight="10" refX="0" refY="3.5" orient="auto">
+                    <polygon points="0 1, 2.5 3.5, 0 5.5" fill="rgba(100, 100, 100, 0.5) " />
+                  </marker>
+                </defs>
+                <path id="arrowPath" d="M35,70 Q50,99 65,70" stroke="rgba(100, 100, 100, 0.5) " stroke-width="0.8" stroke-dasharray="1,1" fill="none" marker-end="url(#arrowhead)" />
+                <text text-anchor="middle" font-size="4"  fill="rgba(100, 100, 100, 0.5) " dy="4.2"  class="lato-bold"> 
+                  <textPath href="#arrowPath" startOffset="50%">
+                    Centroids
+                  </textPath>
+                  <!-- rgba(4, 178, 217, 0.5) rgba(100, 100, 100, 0.5) rgba(103, 191, 99, 0.5) -->
+                </text>
+              </svg>
+              
+              <svg class="arrow-svg" viewBox="0 0 200 100" preserveAspectRatio="none">
+                <defs>
+                  <marker id="arrowhead2" markerWidth="7" markerHeight="10" refX="0" refY="3.5" orient="auto">
+                    <polygon points="0 1, 3 3.5, 0 6" fill="rgba(100, 100, 100, 0.5) " />
+                  </marker>
+                </defs>
+                <path id="arrowPath2" d="M135,70 Q150,99 165,70" stroke="rgba(100, 100, 100, 0.5) " stroke-width="0.8" stroke-dasharray="1,1" fill="none" marker-end="url(#arrowhead2)" />
+                <text text-anchor="middle" font-size="4"  fill="rgba(100, 100, 100, 0.5) " dy="4.2"  class="lato-bold"> 
+                  <textPath href="#arrowPath2" startOffset="50%">
+                    Centroids
+                  </textPath>
+                  <!-- rgba(4, 178, 217, 0.5) rgba(100, 100, 100, 0.5) rgba(103, 191, 99, 0.5) -->
+                </text>
+              </svg>
+              
+            </div>
+
+            <div class="columns is-mobile dark-grey lato-bold description">
+              <div class="column is-one-quarter">
+                Ours Source
+              </div>
+              <div class="column is-one-quarter">
+                Ours Target
+              </div>
+              <div class="column is-one-quarter">
+                Diff3F Source
+              </div>
+              <div class="column is-one-quarter">
+                Diff3F Target
+              </div>
+            </div>
+
+            
+            <table class="controller">
+              <tr>
+                <th id="segmentation-P" style="width: 80px;">
+                  <div  class="my-button lato-black button-blue drop-shadow"><</div><span
+                    class="animation-text">Previous</span>
+                </th>
+                <th id="segmentation-Z" style="width: 80px;">
+                  <div  class="my-button lato-black  button-yellow drop-shadow">⤢</div><span
+                    class="animation-text">Zoom</span>
+                </th>
+                <th id="segmentation-S" style="width: 80px;">
+                  <div  class="my-button lato-black  button-red drop-shadow">                    
+                    <span style="font-size: 0.6em; font-weight: 900;">▶‖</span>
+                  </div>
+                  <span class="animation-text">Play/Pause</span>
+                </th>
+                <th id="segmentation-N" style="width: 80px;">
+                  <div  class="my-button lato-black  button-green drop-shadow">></div><span
+                    class="animation-text">Next</span>
+                </th>
+              </tr>
+            </table>
+          </div>
+
+          <br>
+          <!-- Pose -->
+          <div class="level-left">
+            <div class="level-item">
+              <h2 class="title is-4 black lato-black ">Pose Alignment</h2>
+            </div> 
+          </div>
+          
+          <div class="content has-text-justified">
+            <p> Our surface-aware features are also useful for the pose alignment of a kinematic model to another 3D shape. 
+              To this end, we establish point correspondences between shape pairs and optimize the kinematic pose parameters to minimize point-to-point distances.
+              <span class="highlight-red">Our method produces poses closer to the target shape for dense and sparse correspondences</span>.
+            </p>
+          </div>
+          
+          <div class="level-left">
+            <div class="level-item">
+              <h2 class="title is-5 black lato-black ">Static</h2>
+            </div> 
+          </div>
+          
+          <div class="content has-text-justified">
+            <p> We first optimize rotation, translation, and scale of the source shape for a rough alignment. Then, we optimize the bone rotations.
+            </p>
+          </div>
+          
+          
+          <div id="pose-box">
+            <video id="pose-video" muted playsinline loop autoplay >
+              <source src="./static/videos/pose/3.mp4" type="video/mp4">
+            </video>
+
+            <div class="columns is-mobile dark-grey lato-bold description">
+              <div class="column is-one-quarter">
+                Ours Source
+              </div>
+              <div class="column is-one-quarter">
+                Ours Target
+              </div>
+              <div class="column is-one-quarter">
+                Diff3F Source
+              </div>
+              <div class="column is-one-quarter">
+                Diff3F Target
+              </div>
+            </div>
+
+
+            <table class="controller">
+              <tr>
+                <th id="pose-P" style="width: 80px;">
+                  <div  class="my-button lato-black button-blue drop-shadow"><</div><span
+                    class="animation-text">Previous</span>
+                </th>
+                <th id="pose-Z" style="width: 80px;">
+                  <div class="my-button lato-black  button-yellow drop-shadow">⤢</div><span
+                    class="animation-text">Zoom</span>
+                </th>
+                <th id="pose-S" style="width: 80px;">
+                  <div  class="my-button lato-black  button-red drop-shadow">                    
+                    <span style="font-size: 0.6em; font-weight: 900;">▶‖</span>
+                  </div>
+                  <span class="animation-text">Play/Pause</span>
+                </th>
+                <th id="pose-N" style="width: 80px;">
+                  <div  class="my-button lato-black  button-green drop-shadow">></div><span
+                    class="animation-text">Next</span>
+                </th>
+              </tr>
+            </table>
+          </div>
+
+          <br>
+          <!-- Motion -->
+          <div class="level-left">
+            <div class="level-item">
+              <h2 class="title is-5 black lato-black ">Dynamic</h2>
+            </div> 
+          </div>
+
+
+          <div class="content has-text-justified">
+            <p> We can adopt the same procedure for a sequence of target poses and optimize a set of source shapes in parallel.
+            </p>
+          </div>
+          
+          <div id="motion-box">
+
+            <video id="motion-video" muted playsinline loop autoplay >
+              <source src="./static/videos/motion/1.mp4" type="video/mp4">
+            </video>
+            
+            <div class="columns is-mobile dark-grey lato-bold description">
+              <div class="column is-one-quarter">
+                Ours Source
+              </div>
+              <div class="column is-one-quarter">
+                Ours Target
+              </div>
+              <div class="column is-one-quarter">
+                Diff3F Source
+              </div>
+              <div class="column is-one-quarter">
+                Diff3F Target
+              </div>
+            </div>
+            
+            
+            <table class="controller">
+              <tr>
+                <th id="motion-P" style="width: 80px;">
+                  <div  class="my-button lato-black button-blue drop-shadow"><</div><span
+                  class="animation-text">Previous</span>
+                </th>
+                <th id="motion-Z" style="width: 80px;">
+                  <div  class="my-button lato-black  button-yellow drop-shadow">⤢</div><span
+                  class="animation-text">Zoom</span>
+                </th>
+                <th id="motion-S" style="width: 80px;">
+                  <div  class="my-button lato-black  button-red drop-shadow">                    
+                    <span style="font-size: 0.6em; font-weight: 900;">▶‖</span>
+                  </div>
+                  <span class="animation-text">Play/Pause</span>
+                </th>
+                <th id="motion-N" style="width: 80px;">
+                  <div class="my-button lato-black  button-green drop-shadow">></div><span
+                  class="animation-text">Next</span>
+                </th>
+              </tr>
+            </table>
+            
+          </div>
+      </section>
+
+      <br>
+      <section class="section">
+        <div class="level-left">
+          <div class="level-item">
+            <h2 class="title is-3 black lato-black ">Correspondence Matching</h2>
+
+          </div>
+        </div>
+
+        <div class="content has-text-justified">
+          <p> For fairness, we sample one target shape randomly per source shape and show the examples here.
+            You can explore the results below by cycling through the different examples by pushing 
+            the <b class="blue" style="vertical-align: bottom"><</b> and <b class="green"
+              style="vertical-align: bottom">></b> buttons.
+            We find that our features produces <span class="highlight-blue">visually smoother correspondences</span> and are <span class="highlight-blue">more robust in separating left from right</span>, as well as front and back.
+            <br><br>
+            <span class="highlight-red"><i>Note that correspondences are point-based and no post-processing is applied.</i></span>
+          </p>
+        </div>
+
+        
+      <!-- SHREC'20 -->
+      <section>
+
+        <div class="level-left">
+          <div class="level-item">
+            <h2 class="title is-4 black lato-black ">SHREC'20</h2>
+          </div> 
+        </div>
+
+        <div id="shrec20-box">
+
+          <video id="shrec20-video" muted playsinline loop autoplay >
+            <source src="./static/videos/shrec20/12.mp4" type="video/mp4">
+          </video>
+          
+          <div style="margin-top: -4em;" class="columns is-mobile dark-grey lato-bold description">
+            <div class="column is-one-third">
+              Source
+            </div>
+            <div class="column is-one-third">
+              Ours
+            </div>
+            <div class="column is-one-third">
+              Diff3F
+            </div>
+          </div>
+          
+          
+          <table class="controller">
+            <tr>
+              <th id="shrec20-P" style="width: 80px;">
+                <div  class="my-button lato-black button-blue drop-shadow"><</div><span
+                class="animation-text">Previous</span>
+              </th>
+              <th id="shrec20-Z" style="width: 80px;">
+                <div  class="my-button lato-black  button-yellow drop-shadow">⤢</div><span
+                class="animation-text">Zoom</span>
+              </th>
+              <th id="shrec20-S" style="width: 80px;">
+                <div  class="my-button lato-black  button-red drop-shadow">                    
+                  <span style="font-size: 0.6em; font-weight: 900;">▶‖</span>
+                </div>
+                <span class="animation-text">Play/Pause</span>
+              </th>
+              <th id="shrec20-N" style="width: 80px;">
+                <div class="my-button lato-black  button-green drop-shadow">></div><span
+                class="animation-text">Next</span>
+              </th>
+            </tr>
+          </table>
+          
+        </div>
+      </section>
+        
+      <br>
+        <!-- SHREC'19 -->
+        <section>
+
+          <div class="level-left">
+            <div class="level-item">
+              <h2 class="title is-4 black lato-black ">SHREC'19</h2>
+            </div> 
+          </div>
+          
+          <div id="shrec19-box">
+
+            <video id="shrec19-video" muted playsinline loop autoplay >
+              <source src="./static/videos/shrec19/4.mp4" type="video/mp4">
+            </video>
+            
+            <div class="columns is-mobile dark-grey lato-bold description">
+              <div class="column is-one-third">
+                <div class="columns is-mobile">
+                  <div class="column is-half">
+                    Source
+                  </div>
+                  <div class="column is-half">
+                    GT
+                  </div>
+                  
+                </div>
+                
+              </div>
+              <div class="column is-one-third">
+                Ours
+              </div>
+              <div class="column is-one-third">
+                Diff3F
+              </div>
+            </div>
+            
+            <table class="controller">
+              <tr>
+                <th id="shrec19-P" style="width: 80px;">
+                  <div  class="my-button lato-black button-blue drop-shadow"><</div><span
+                  class="animation-text">Previous</span>
+                </th>
+                <th id="shrec19-Z" style="width: 80px;">
+                  <div  class="my-button lato-black  button-yellow drop-shadow">⤢</div><span
+                  class="animation-text">Zoom</span>
+                </th>
+                <th id="shrec19-S" style="width: 80px;">
+                  <div  class="my-button lato-black  button-red drop-shadow">                    
+                    <span style="font-size: 0.6em; font-weight: 900;">▶‖</span>
+                  </div>
+                  <span class="animation-text">Play/Pause</span>
+                </th>
+                <th id="shrec19-N" style="width: 80px;">
+                  <div  class="my-button lato-black  button-green drop-shadow">></div><span
+                  class="animation-text">Next</span>
+                </th>
+              </tr>
+            </table>
+          </div>
+            
+      </section>
+
+      <br>
+      <!-- TOSCA -->
+      <section>
+
+        <div class="level-left">
+          <div class="level-item">
+            <h2 class="title is-4 black lato-black ">TOSCA</h2>
+          </div> 
+        </div>
+
+        <div id="tosca-box">
+
+          <video id="tosca-video" muted playsinline loop autoplay >
+            <source src="./static/videos/tosca/23.mp4" type="video/mp4">
+          </video>
+          
+          <div class="columns is-mobile dark-grey lato-bold description">
+            <div class="column is-one-third">
+              <div class="columns is-mobile">
+                <div class="column is-half">
+                  Source
+                </div>
+                <div class="column is-half">
+                  GT
+                </div>
+                
+              </div>
+              
+            </div>
+            <div class="column is-one-third">
+              Ours
+            </div>
+            <div class="column is-one-third">
+              Diff3F
+            </div>
+          </div>
+          
+          
+          <table class="controller">
+            <tr>
+              <th id="tosca-P" style="width: 80px;">
+                <div  class="my-button lato-black button-blue drop-shadow"><</div><span
+                class="animation-text">Previous</span>
+              </th>
+              <th id="tosca-Z" style="width: 80px;">
+                <div  class="my-button lato-black  button-yellow drop-shadow">⤢</div><span
+                class="animation-text">Zoom</span>
+              </th>
+              <th id="tosca-S" style="width: 80px;">
+                <div  class="my-button lato-black  button-red drop-shadow">                    
+                  <span style="font-size: 0.6em; font-weight: 900;">▶‖</span>
+                </div>
+                <span class="animation-text">Play/Pause</span>
+              </th>
+              <th id="tosca-N" style="width: 80px;">
+                <div  class="my-button lato-black  button-green drop-shadow">></div><span
+                class="animation-text">Next</span>
+              </th>
+            </tr>
+          </table>
+        </div>
+
+    </section>
+    <br>
+    <section>
+
+          
+
+            <div class="level-left">
+              <div class="level-item">
+                <h2 class="title is-4 lato-black pb-1">BibTeX</h2>
+              </div>
+            </div>
+
+
+            <div style="z-index: -1 !important;" class="has-text-left">
+
+              <pre>TBD</pre>
+            </div>
+
+
+          </section>
+
+        </div>
+      </div>
+    </div>
+
+</body>
+
+</html>
